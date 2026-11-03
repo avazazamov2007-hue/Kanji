@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kanji O'rganish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --bar:#1a1a1a; --card:#161616; --card2:#1c1c1c; --line:#2a2a2a;
+  --text:#e4e4e4; --dim:#8a8a8a; --accent:#ff5a5a; --good:#4ade80; --bad:#ff5a5a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--text)}
+body{font-family:'Cormorant Garamond','Noto Serif JP',serif;font-size:18px;touch-action:manipulation}
+#app{max-width:520px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.jp{font-family:'Noto Serif JP','Cormorant Garamond',serif}
+.title{font-family:'Playfair Display',serif;font-weight:700}
+svg.i{width:1em;height:1em;fill:currentColor;display:block}
+
+.top{flex:none;background:var(--bar);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;font-size:20px;user-select:none}
+.top svg{font-size:22px}
+
+/* home */
+.home{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:0 22px;text-align:center;gap:clamp(12px,3vh,26px)}
+.home h1{font-size:clamp(34px,5.5vh,44px);line-height:1.15}
+.home p.sub{color:var(--dim);font-size:clamp(17px,2.6vh,20px);margin-bottom:clamp(6px,3vh,28px)}
+.big{background:linear-gradient(145deg,#1b1b1b,#0f0f0f);border:1px solid var(--line);border-radius:32px;padding:clamp(18px,4.5vh,40px) 20px;cursor:pointer;transition:transform .15s,border-color .2s}
+.big:active{transform:scale(.97);border-color:#444}
+.big .ic{width:clamp(52px,9vh,80px);height:clamp(52px,9vh,80px);border-radius:50%;background:#222;margin:0 auto clamp(10px,2vh,20px);display:flex;align-items:center;justify-content:center;font-size:clamp(22px,4vh,32px)}
+.big h2{font-family:'Playfair Display',serif;font-size:clamp(22px,3.6vh,28px);margin-bottom:6px}
+.big .jp{color:var(--dim);font-size:clamp(18px,3vh,24px)}
+
+/* dictionary grid: 6 x 6 = 36 */
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,1fr);gap:8px;padding:14px 14px 18px}
+.cell{min-height:0;background:var(--card2);border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:min(8vw,4.6vh);cursor:pointer;transition:transform .12s,border-color .2s,background .2s}
+.cell:active{transform:scale(.92);border-color:var(--accent);background:#241616}
+
+/* detail */
+.det{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 18px 16px}
+.dnav{flex:none;display:flex;justify-content:space-between;align-items:center}
+.cnt2{color:var(--dim);font-size:20px}
+.nav{width:44px;height:44px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.nav.r svg{transform:scaleX(-1)}
+.bigk{flex:none;text-align:center;font-size:min(26vw,15vh);line-height:1.1;margin-top:2px}
+.mean{flex:none;text-align:center;font-size:clamp(20px,3.4vh,26px);color:var(--accent);margin:2px 0 clamp(8px,1.8vh,16px);font-weight:600}
+.row{flex:none;display:flex;gap:10px}
+.box{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:8px 14px}
+.box small{display:block;color:var(--dim);font-size:13px;letter-spacing:.6px;margin-bottom:2px;text-transform:uppercase}
+.box .jp{font-size:clamp(17px,2.8vh,21px);line-height:1.35}
+.wt{flex:none;color:var(--dim);font-size:13px;letter-spacing:.6px;text-transform:uppercase;margin:clamp(8px,1.8vh,16px) 0 2px}
+.words{flex:1;min-height:0;display:flex;flex-direction:column}
+.word{flex:1;min-height:0;display:flex;align-items:center;gap:14px;border-bottom:1px solid #222}
+.word:last-child{border:none}
+.word .w{width:36%;font-size:min(6vw,3.6vh);white-space:nowrap}
+.word .d{display:flex;flex-direction:column;line-height:1.25}
+.word .rd{font-size:min(4vw,2.4vh);color:#bbb;font-family:'Noto Serif JP',serif}
+.word .mm{font-size:min(4.4vw,2.7vh);color:var(--dim)}
+
+/* setup */
+.wrap{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(10px,2vh,22px) 20px clamp(14px,3vh,28px)}
+.label{color:var(--dim);font-size:clamp(18px,2.8vh,22px);margin:0 0 clamp(6px,1.4vh,12px) 4px}
+.mode{display:flex;align-items:center;gap:18px;background:var(--card2);border:1px solid var(--line);border-radius:24px;padding:clamp(10px,2vh,18px) 20px;margin-bottom:clamp(8px,1.5vh,12px);cursor:pointer;transition:.2s;font-size:clamp(19px,3vh,24px)}
+.mode .mi{width:clamp(44px,7vh,56px);height:clamp(44px,7vh,56px);border-radius:14px;background:#262626;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
+.mode.on{border-color:var(--accent);background:#1f1010}
+.mode.on .mi{background:var(--accent);color:#111}
+.counts{display:flex;gap:10px}
+.cnt{flex:1;text-align:center;padding:clamp(14px,2.8vh,22px) 2px;background:var(--card2);border:1px solid var(--line);border-radius:18px;font-size:clamp(18px,2.8vh,22px);cursor:pointer;transition:.2s}
+.cnt.on{background:var(--accent);border-color:var(--accent);color:#111}
+.start{flex:none;width:100%;padding:clamp(16px,3vh,24px);border:none;border-radius:26px;background:#e0e0e0;color:#111;font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(22px,3.4vh,28px);cursor:pointer}
+.start:active{transform:scale(.98)}
+
+/* quiz */
+.qtop{flex:none;display:flex;align-items:center;gap:16px;padding:12px 20px 0}
+.prog{flex:1}
+.bar{height:12px;border-radius:6px;background:#262626;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .3s}
+.cn{color:var(--dim);margin-top:4px;font-size:20px}
+.score{display:flex;align-items:center;gap:8px;background:#12261c;color:var(--good);border-radius:30px;padding:10px 18px;font-size:20px;font-weight:600}
+.score svg{font-size:20px}
+.q{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 20px 14px}
+.qp{flex:none;color:var(--dim);font-size:clamp(19px,3vh,24px);margin:clamp(6px,1.6vh,16px) 0 0}
+.qk{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;font-size:min(30vw,19vh);line-height:1}
+.opts{flex:none}
+.opt{display:flex;align-items:center;gap:16px;background:var(--card2);border:1px solid var(--line);border-radius:24px;padding:0 18px;margin-bottom:clamp(7px,1.3vh,12px);cursor:pointer;font-size:clamp(20px,3.3vh,26px);transition:.15s;height:clamp(50px,8.6vh,74px)}
+.opt .l{width:clamp(34px,5.4vh,44px);height:clamp(34px,5.4vh,44px);border-radius:50%;background:#2c2c2c;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-size:clamp(16px,2.4vh,20px);font-weight:600;flex:none}
+.opt:active{transform:scale(.98)}
+.opt.ok{border-color:var(--good);background:#10261a}
+.opt.ok .l{background:var(--good);color:#0a0a0a}
+.opt.no{border-color:var(--bad);background:#2a1212}
+.opt.no .l{background:var(--bad);color:#0a0a0a}
+.opt.lock{pointer-events:none}
+.opt.dim{opacity:.45}
+.next{flex:none;width:100%;height:clamp(48px,7.4vh,60px);border:none;border-radius:22px;background:#e0e0e0;color:#111;font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(19px,2.8vh,23px);cursor:pointer;visibility:hidden}
+.next.show{visibility:visible}
+
+/* result */
+.res{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:clamp(18px,4vh,40px) 22px clamp(14px,3vh,28px);text-align:center}
+.ring{flex:none;width:clamp(120px,22vh,180px);height:clamp(120px,22vh,180px);border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),#262626 0)}
+.ring div{width:82%;height:82%;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}
+.ring b{font-family:'Playfair Display',serif;font-size:clamp(30px,5.4vh,44px)}
+.res h2{font-family:'Playfair Display',serif;font-size:clamp(22px,3.8vh,30px);margin-bottom:4px}
+.res p{color:var(--dim);font-size:clamp(17px,2.6vh,21px)}
+.mist{flex:1;min-height:0;width:100%;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.mist .label{text-align:left}
+.chips{display:flex;flex-wrap:wrap;gap:8px;max-height:100%;overflow:hidden}
+.chip{width:clamp(40px,6.4vh,52px);height:clamp(40px,6.4vh,52px);display:flex;align-items:center;justify-content:center;border:1px solid #5a2a2a;background:#241414;border-radius:12px;font-size:clamp(20px,3.4vh,28px)}
+.btns{flex:none;width:100%;display:flex;gap:12px}
+.btns button{flex:1;padding:clamp(14px,2.6vh,20px);border-radius:22px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:clamp(19px,2.8vh,22px);cursor:pointer}
+.btns button.p{background:#e0e0e0;color:#111;border:none;font-weight:700}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------- ICONS ---------- */
+const IC={
+ back:'<svg class="i" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.4-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>',
+ book:'<svg class="i" viewBox="0 0 576 512"><path d="M249.6 471.5c10.8 3.8 22.4-4.1 22.4-15.5V78.6c0-4.2-1.6-8.4-5-11C247.4 52 202.4 32 144 32 93.5 32 46.3 45.3 18.1 56.1 6.8 60.5 0 71.7 0 83.8V454.1c0 11.9 12.8 20.2 24.1 16.5C55.6 460.1 105.5 448 144 448c33.9 0 79 14 105.6 23.5zm76.8 0C353 462 398.1 448 432 448c38.5 0 88.4 12.1 119.9 22.6 11.3 3.8 24.1-4.6 24.1-16.5V83.8c0-12.1-6.8-23.3-18.1-27.6C529.7 45.3 482.5 32 432 32c-58.4 0-103.4 20-123 35.6-3.3 2.6-5 6.8-5 11V456c0 11.4 11.5 19.3 22.4 15.5z"/></svg>',
+ pen:'<svg class="i" viewBox="0 0 512 512"><path d="M368.4 18.3 312.7 74.1 437.9 199.3l55.7-55.7c24.4-24.4 24.4-63.9 0-88.3L456.7 18.3c-24.4-24.4-63.9-24.4-88.3 0zM288.8 97.9 152.7 134c-23 6.1-41.5 22.9-49.7 45.3L20.8 403.4c-1.4 3.8-.5 8.1 2.4 11l1.7 1.7L144 297.3c-1.3-5.1-2-10.4-2-15.8 0-35.3 28.7-64 64-64s64 28.7 64 64-28.7 64-64 64c-5.4 0-10.7-.7-15.8-2L69.5 438.9l1.7 1.7c2.9 2.9 7.2 3.8 11 2.4l224.1-82.2c22.4-8.2 39.2-26.7 45.3-49.7l36.1-136.2L288.8 97.9z"/></svg>',
+ check:'<svg class="i" viewBox="0 0 448 512"><path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>',
+ read:'<svg class="i" viewBox="0 0 24 24"><path d="M4 4h10a2 2 0 0 1 2 2v3h-2V6H4v12h6v2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm4.5 3.2 2.2 6.3H9.4l-.4-1.3H7l-.4 1.3H5.3l2.2-6.3h1zM8 11.2l-.5-1.7-.5 1.7h1zM15 11h7v2h-2.4c-.4 1.7-1.3 3-2.6 4l2.2 2.2-1.4 1.4-2.3-2.3-1.8 1.4-1.1-1.5c1.3-.9 2.3-2.1 2.8-3.7H13v-2h1.2V9h2v2h-1.2z"/></svg>',
+ bulb:'<svg class="i" viewBox="0 0 384 512"><path d="M272 384c9.6-31.9 29.5-59.1 49.2-86.2 5.2-7.1 10.4-14.2 15.4-21.4 19.8-28.5 31.4-63 31.4-100.3C368 78.8 289.2 0 192 0S16 78.8 16 176c0 37.3 11.6 71.9 31.4 100.3 5 7.2 10.2 14.3 15.4 21.4 19.8 27.1 39.7 54.4 49.2 86.2h160zM192 512c44.2 0 80-35.8 80-80v-16H112v16c0 44.2 35.8 80 80 80zM112 176c0 8.8-7.2 16-16 16s-16-7.2-16-16c0-61.9 50.1-112 112-112 8.8 0 16 7.2 16 16s-7.2 16-16 16c-44.2 0-80 35.8-80 80z"/></svg>',
+ shuf:'<svg class="i" viewBox="0 0 512 512"><path d="M403.8 34.4c12-5 25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64c-9.2 9.2-22.9 11.9-34.9 6.9S384 204.9 384 192v-32h-32c-10.1 0-19.6 4.7-25.6 12.8L284 229.3 244 176l31.2-41.6C293.3 110.2 321.8 96 352 96h32V64c0-12.9 7.8-24.6 19.8-29.6zM164 282.7 204 336l-31.2 41.6C154.7 401.8 126.2 416 96 416H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h64c10.1 0 19.6-4.7 25.6-12.8L164 282.7zm274.6 188c-9.2 9.2-22.9 11.9-34.9 6.9S384 460.9 384 448v-32h-32c-30.2 0-58.7-14.2-76.8-38.4L121.6 172.8c-6-8.1-15.5-12.8-25.6-12.8H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h64c30.2 0 58.7 14.2 76.8 38.4L326.4 339.2c6 8.1 15.5 12.8 25.6 12.8h32v-32c0-12.9 7.8-24.6 19.8-29.6s25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64z"/></svg>'
+};
+
+/* ---------- DATA ---------- */
+const D=[
+{k:'日',on:['ニチ','ジツ'],kun:['ひ','か'],m:'kun, quyosh',w:[['日本','にほん','Yaponiya'],['毎日','まいにち','har kuni'],['今日','きょう','bugun'],['日曜日','にちようび','yakshanba'],['誕生日','たんじょうび',"tug'ilgan kun"]]},
+{k:'月',on:['ゲツ','ガツ'],kun:['つき'],m:'oy',w:[['月曜日','げつようび','dushanba'],['今月','こんげつ','shu oy'],['一月','いちがつ','yanvar'],['来月','らいげつ','keyingi oy'],['毎月','まいつき','har oy']]},
+{k:'火',on:['カ'],kun:['ひ'],m:'olov',w:[['火曜日','かようび','seshanba'],['火事','かじ',"yong'in"],['花火','はなび','fayerverk'],['火山','かざん','vulqon'],['火','ひ','olov']]},
+{k:'水',on:['スイ'],kun:['みず'],m:'suv',w:[['水','みず','suv'],['水曜日','すいようび','chorshanba'],['水道','すいどう','suv quvuri'],['香水','こうすい','atir'],['水着','みずぎ','suzish kiyimi']]},
+{k:'木',on:['モク','ボク'],kun:['き','こ'],m:'daraxt',w:[['木','き','daraxt'],['木曜日','もくようび','payshanba'],['木材','もくざい',"yog'och material"],['大木','たいぼく','katta daraxt'],['木村','きむら','Kimura (familiya)']]},
+{k:'金',on:['キン','コン'],kun:['かね'],m:'oltin, pul',w:[['お金','おかね','pul'],['金曜日','きんようび','juma'],['現金','げんきん','naqd pul'],['金額','きんがく','pul miqdori'],['金色','きんいろ','oltin rang']]},
+{k:'土',on:['ド','ト'],kun:['つち'],m:'tuproq, yer',w:[['土曜日','どようび','shanba'],['土','つち','tuproq'],['土地','とち','yer uchastkasi'],['お土産','おみやげ',"sovg'a, suvenir"],['国土','こくど','mamlakat hududi']]},
+{k:'山',on:['サン'],kun:['やま'],m:"tog'",w:[['山','やま',"tog'"],['富士山','ふじさん',"Fuji tog'i"],['火山','かざん','vulqon'],['登山','とざん','alpinizm'],['山田','やまだ','Yamada (familiya)']]},
+{k:'川',on:['セン'],kun:['かわ'],m:'daryo',w:[['川','かわ','daryo'],['小川','おがわ',"soy, jilg'a"],['川上','かわかみ','daryo yuqori oqimi'],['河川','かせん','daryolar'],['山川','やまかわ',"tog' va daryo"]]},
+{k:'田',on:['デン'],kun:['た'],m:'guruch dalasi',w:[['田んぼ','たんぼ','sholipoya'],['田中','たなか','Tanaka (familiya)'],['田舎','いなか','qishloq'],['水田','すいでん','sholizor'],['油田','ゆでん','neft koni']]},
+{k:'一',on:['イチ','イツ'],kun:['ひと'],m:'bir',w:[['一つ','ひとつ','bitta'],['一人','ひとり','bir kishi'],['一月','いちがつ','yanvar'],['一番','いちばん','birinchi, eng'],['一緒','いっしょ','birga']]},
+{k:'二',on:['ニ'],kun:['ふた'],m:'ikki',w:[['二つ','ふたつ','ikkita'],['二人','ふたり','ikki kishi'],['二月','にがつ','fevral'],['二日','ふつか','2-kun'],['二番','にばん','ikkinchi']]},
+{k:'三',on:['サン'],kun:['み','みっ'],m:'uch',w:[['三つ','みっつ','uchta'],['三人','さんにん','uch kishi'],['三月','さんがつ','mart'],['三日','みっか','3-kun'],['三時','さんじ','soat uch']]},
+{k:'四',on:['シ'],kun:['よん','よ','よっ'],m:"to'rt",w:[['四つ','よっつ',"to'rtta"],['四月','しがつ','aprel'],['四人','よにん',"to'rt kishi"],['四日','よっか','4-kun'],['四時','よじ',"soat to'rt"]]},
+{k:'五',on:['ゴ'],kun:['いつ'],m:'besh',w:[['五つ','いつつ','beshta'],['五月','ごがつ','may'],['五人','ごにん','besh kishi'],['五日','いつか','5-kun'],['五時','ごじ','soat besh']]},
+{k:'六',on:['ロク'],kun:['む','むっ'],m:'olti',w:[['六つ','むっつ','oltita'],['六月','ろくがつ','iyun'],['六人','ろくにん','olti kishi'],['六日','むいか','6-kun'],['六時','ろくじ','soat olti']]},
+{k:'七',on:['シチ'],kun:['なな','なの'],m:'yetti',w:[['七つ','ななつ','yettita'],['七月','しちがつ','iyul'],['七人','しちにん','yetti kishi'],['七日','なのか','7-kun'],['七時','しちじ','soat yetti']]},
+{k:'八',on:['ハチ'],kun:['や','やっ'],m:'sakkiz',w:[['八つ','やっつ','sakkizta'],['八月','はちがつ','avgust'],['八人','はちにん','sakkiz kishi'],['八日','ようか','8-kun'],['八百屋','やおや',"sabzavot do'koni"]]},
+{k:'九',on:['キュウ','ク'],kun:['ここの'],m:"to'qqiz",w:[['九つ','ここのつ',"to'qqizta"],['九月','くがつ','sentabr'],['九人','きゅうにん',"to'qqiz kishi"],['九日','ここのか','9-kun'],['九時','くじ',"soat to'qqiz"]]},
+{k:'十',on:['ジュウ','ジッ'],kun:['とお','と'],m:"o'n",w:[['十月','じゅうがつ','oktabr'],['十人','じゅうにん',"o'n kishi"],['十日','とおか','10-kun'],['十分','じゅっぷん','10 daqiqa'],['十','とお',"o'n (sanoq)"]]},
+{k:'百',on:['ヒャク'],kun:[],m:'yuz',w:[['百','ひゃく','100'],['三百','さんびゃく','300'],['六百','ろっぴゃく','600'],['百円','ひゃくえん','100 yen'],['百貨店','ひゃっかてん','univermag']]},
+{k:'千',on:['セン'],kun:['ち'],m:'ming',w:[['千','せん','1000'],['三千','さんぜん','3000'],['千円','せんえん','1000 yen'],['八千','はっせん','8000'],['千葉','ちば','Chiba (shahar)']]},
+{k:'万',on:['マン','バン'],kun:[],m:"o'n ming",w:[['一万','いちまん','10 000'],['十万','じゅうまん','100 000'],['百万','ひゃくまん','million'],['万年筆','まんねんひつ','avtoruchka'],['万国','ばんこく','barcha mamlakatlar']]},
+{k:'円',on:['エン'],kun:['まる'],m:'yen, doira',w:[['円','えん','yen'],['百円','ひゃくえん','100 yen'],['一万円','いちまんえん','10 000 yen'],['円高','えんだか','yen qimmatlashuvi'],['円安','えんやす','yen arzonlashuvi']]},
+{k:'学',on:['ガク'],kun:['まな'],m:"o'qish, o'rganish",w:[['学生','がくせい','talaba'],['学校','がっこう','maktab'],['大学','だいがく','universitet'],['留学','りゅうがく',"chet elda o'qish"],['学ぶ','まなぶ',"o'rganmoq"]]},
+{k:'生',on:['セイ','ショウ'],kun:['い','う','なま','は'],m:"hayot, tug'ilish",w:[['先生','せんせい',"o'qituvchi"],['学生','がくせい','talaba'],['生まれる','うまれる',"tug'ilmoq"],['生活','せいかつ','hayot tarzi'],['生ビール','なまビール','tarqatma pivo']]},
+{k:'先',on:['セン'],kun:['さき'],m:'oldingi, avval',w:[['先生','せんせい',"o'qituvchi"],['先週','せんしゅう',"o'tgan hafta"],['先月','せんげつ',"o'tgan oy"],['先に','さきに','oldin'],['先輩','せんぱい',"senpay, katta o'rtoq"]]},
+{k:'会',on:['カイ','エ'],kun:['あ'],m:'uchrashuv, jamiyat',w:[['会う','あう','uchrashmoq'],['会社','かいしゃ','kompaniya'],['会議','かいぎ','majlis'],['社会','しゃかい','jamiyat'],['会話','かいわ','suhbat']]},
+{k:'社',on:['シャ'],kun:['やしろ'],m:'kompaniya, ziyoratgoh',w:[['会社','かいしゃ','kompaniya'],['神社','じんじゃ','sinto ziyoratgohi'],['社長','しゃちょう','direktor'],['社会','しゃかい','jamiyat'],['本社','ほんしゃ','bosh ofis']]},
+{k:'員',on:['イン'],kun:[],m:"a'zo, xodim",w:[['会社員','かいしゃいん','kompaniya xodimi'],['店員','てんいん','sotuvchi'],['銀行員','ぎんこういん','bank xodimi'],['公務員','こうむいん','davlat xizmatchisi'],['委員','いいん',"komissiya a'zosi"]]},
+{k:'医',on:['イ'],kun:[],m:'tibbiyot',w:[['医者','いしゃ','shifokor'],['医学','いがく','tibbiyot ilmi'],['医院','いいん','klinika'],['歯医者','はいしゃ','tish shifokori'],['医師','いし','shifokor (rasmiy)']]},
+{k:'者',on:['シャ'],kun:['もの'],m:'shaxs, kishi',w:[['医者','いしゃ','shifokor'],['学者','がくしゃ','olim'],['作者','さくしゃ','muallif'],['若者','わかもの','yoshlar'],['読者','どくしゃ',"o'quvchi"]]},
+{k:'本',on:['ホン'],kun:['もと'],m:'kitob, asl',w:[['本','ほん','kitob'],['日本','にほん','Yaponiya'],['本当','ほんとう','haqiqat'],['本屋','ほんや',"kitob do'koni"],['本人','ほんにん',"shaxsan o'zi"]]},
+{k:'中',on:['チュウ','ジュウ'],kun:['なか','うち'],m:"o'rta, ichida",w:[['中国','ちゅうごく','Xitoy'],['中','なか','ichi'],['中学校','ちゅうがっこう',"o'rta maktab"],['一日中','いちにちじゅう',"kun bo'yi"],['中心','ちゅうしん','markaz']]},
+{k:'国',on:['コク'],kun:['くに'],m:'mamlakat',w:[['国','くに','mamlakat'],['外国','がいこく','chet el'],['中国','ちゅうごく','Xitoy'],['国民','こくみん','xalq'],['国際','こくさい','xalqaro']]},
+{k:'人',on:['ジン','ニン'],kun:['ひと'],m:'odam, inson',w:[['人','ひと','odam'],['日本人','にほんじん','yapon'],['外国人','がいこくじん','chet ellik'],['三人','さんにん','uch kishi'],['人気','にんき','mashhurlik']]}
+];
+
+/* ---------- STATE ---------- */
+const app=document.getElementById('app');
+let setup={mode:'read',count:15};
+let quiz=null;
+
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- VIEWS ---------- */
+function home(){
+  app.innerHTML=`
+  <div class="home">
+    <div><h1 class="title">Xush Kelibsiz</h1></div>
+    <p class="sub">Kanjilarni O'rganing va Bilimingizni Tekshiring</p>
+    <div class="big" onclick="dict()"><div class="ic">${IC.book}</div><h2>Ma'lumotnoma</h2><div class="jp">辞書</div></div>
+    <div class="big" onclick="setupView()"><div class="ic">${IC.pen}</div><h2>Test Ishlash</h2><div class="jp">テスト</div></div>
+  </div>`;
+}
+
+function dict(){
+  app.innerHTML=`
+  <div class="top" onclick="home()">${IC.back}<span>Ortga</span></div>
+  <div class="grid">${D.map((d,i)=>`<div class="cell jp" onclick="detail(${i})">${d.k}</div>`).join('')}</div>`;
+}
+
+function detail(i){
+  const n=D.length,d=D[i];
+  app.innerHTML=`
+  <div class="top" onclick="dict()">${IC.back}<span>Ortga</span></div>
+  <div class="det" id="det">
+    <div class="dnav">
+      <div class="nav" onclick="detail(${(i-1+n)%n})">${IC.back}</div>
+      <div class="cnt2">${i+1} / ${n}</div>
+      <div class="nav r" onclick="detail(${(i+1)%n})">${IC.back}</div>
+    </div>
+    <div class="bigk jp">${d.k}</div>
+    <div class="mean">${d.m}</div>
+    <div class="row">
+      <div class="box"><small>Onyomi</small><div class="jp">${d.on.join('、')||'—'}</div></div>
+      <div class="box"><small>Kunyomi</small><div class="jp">${d.kun.join('、')||'—'}</div></div>
+    </div>
+    <div class="wt">Muhim so'zlar</div>
+    <div class="words">${d.w.map(w=>`<div class="word"><div class="w jp">${w[0]}</div><div class="d"><span class="rd">${w[1]}</span><span class="mm">${w[2]}</span></div></div>`).join('')}</div>
+  </div>`;
+  /* o'ngga/chapga surish bilan ham almashtirish mumkin */
+  const el=document.getElementById('det');let sx=null;
+  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
+  el.addEventListener('touchend',e=>{
+    if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;
+    if(Math.abs(dx)>60)detail(dx<0?(i+1)%n:(i-1+n)%n);
+  });
+}
+
+function setupView(){
+  const modes=[['read',"Kanji: O'qilishi",IC.read],['mean',"Kanji: Ma'nosi",IC.bulb],['mix','Aralash Rejim',IC.shuf]];
+  const counts=[15,30,60,0];
+  app.innerHTML=`
+  <div class="top" onclick="home()">${IC.back}<span>Ortga</span></div>
+  <div class="wrap">
+    <div>
+      <div class="label">Rejim</div>
+      ${modes.map(m=>`<div class="mode ${setup.mode===m[0]?'on':''}" onclick="setup.mode='${m[0]}';setupView()"><div class="mi">${m[2]}</div><span>${m[1]}</span></div>`).join('')}
+    </div>
+    <div>
+      <div class="label">Savollar Soni</div>
+      <div class="counts">${counts.map(c=>`<div class="cnt ${setup.count===c?'on':''}" onclick="setup.count=${c};setupView()">${c||'Barchasi'}</div>`).join('')}</div>
+    </div>
+    <button class="start" onclick="startQuiz()">Testni Boshlash</button>
+  </div>`;
+}
+
+/* ---------- QUIZ ---------- */
+function buildQuestion(d,type){
+  let correct,pool,get;
+  if(type==='read'){
+    correct=d.on.join(', ');
+    pool=shuffle(D).filter(x=>x!==d&&!x.on.some(o=>d.on.includes(o)));
+    get=x=>x.on.join(', ');
+  }else{
+    correct=d.m;
+    pool=shuffle(D).filter(x=>x!==d&&x.m!==d.m);
+    get=x=>x.m;
+  }
+  const wrong=[];
+  for(const x of pool){const s=get(x);if(s!==correct&&!wrong.includes(s))wrong.push(s);if(wrong.length===3)break}
+  return {d,type,correct,opts:shuffle([correct,...wrong])};
+}
+
+function startQuiz(){
+  const n=setup.count||D.length;
+  let pool=[];
+  while(pool.length<n)pool=pool.concat(shuffle(D));
+  pool=pool.slice(0,n);
+  const qs=pool.map(d=>{
+    const t=setup.mode==='mix'?(Math.random()<.5?'read':'mean'):setup.mode;
+    return buildQuestion(d,t);
+  });
+  quiz={qs,i:0,score:0,wrong:[],answered:false};
+  renderQ();
+}
+
+function renderQ(){
+  const q=quiz.qs[quiz.i],n=quiz.qs.length;
+  const L=['A','B','C','D'];
+  app.innerHTML=`
+  <div class="top" onclick="home()">${IC.back}<span>Chiqish</span></div>
+  <div class="qtop">
+    <div class="prog"><div class="bar"><i style="width:${(quiz.i+1)/n*100}%"></i></div><div class="cn">${quiz.i+1} / ${n}</div></div>
+    <div class="score">${IC.check}<span>${quiz.score}</span></div>
+  </div>
+  <div class="q">
+    <div class="qp">${q.type==='read'?"Onyomi O'qilishini Tanlang":"To'g'ri Ma'nosini Tanlang"}</div>
+    <div class="qk jp">${q.d.k}</div>
+    <div class="opts">${q.opts.map((o,j)=>`<div class="opt ${q.type==='read'?'jp':''}" id="o${j}" onclick="answer(${j})"><div class="l">${L[j]}</div><span>${o}</span></div>`).join('')}</div>
+    <button class="next" id="nx" onclick="nextQ()">Keyingisi</button>
+  </div>`;
+  quiz.answered=false;
+}
+
+function answer(j){
+  if(quiz.answered)return;
+  quiz.answered=true;
+  const q=quiz.qs[quiz.i];
+  const ci=q.opts.indexOf(q.correct);
+  q.opts.forEach((_,x)=>{
+    const el=document.getElementById('o'+x);
+    el.classList.add('lock');
+    if(x===ci)el.classList.add('ok');
+    else if(x===j)el.classList.add('no');
+    else el.classList.add('dim');
+  });
+  if(j===ci){quiz.score++;document.querySelector('.score span').textContent=quiz.score}
+  else quiz.wrong.push(q);
+  const nx=document.getElementById('nx');
+  nx.textContent=quiz.i===quiz.qs.length-1?"Natijani ko'rish":'Keyingisi';
+  nx.classList.add('show');
+}
+
+function nextQ(){
+  if(quiz.i===quiz.qs.length-1)return result();
+  quiz.i++;renderQ();
+}
+
+function result(){
+  const n=quiz.qs.length,p=Math.round(quiz.score/n*100);
+  const msg=p>=90?'Ajoyib natija!':p>=70?'Yaxshi, davom eting!':p>=50?'Yomon emas, yana mashq qiling':"Ma'lumotnomani qayta ko'rib chiqing";
+  const seen=new Set();
+  const mist=quiz.wrong.filter(q=>{if(seen.has(q.d.k))return false;seen.add(q.d.k);return true});
+  app.innerHTML=`
+  <div class="res">
+    <div class="ring" style="--p:${p}"><div><b>${p}%</b><span style="color:var(--dim)">${quiz.score} / ${n}</span></div></div>
+    <div><h2>${msg}</h2><p>To'g'ri: ${quiz.score} ta · Xato: ${n-quiz.score} ta</p></div>
+    <div class="mist">${mist.length?`<div class="label">Xato qilgan kanjilar</div><div class="chips">${mist.map(q=>`<div class="chip jp" onclick="detail(${D.indexOf(q.d)})">${q.d.k}</div>`).join('')}</div>`:''}</div>
+    <div class="btns"><button onclick="home()">Bosh sahifa</button><button class="p" onclick="startQuiz()">Qayta urinish</button></div>
+  </div>`;
+}
+
+home();
+</script>
+</body>
+</html>
